@@ -1,0 +1,10 @@
+body{margin:0;background:#f4f6f8;color:#182333;font:16px/1.5 system-ui,sans-serif}
+main{max-width:800px;margin:40px auto;padding:28px;background:white;border:1px solid #c8ced6;border-radius:8px}
+h1{margin-top:0}form{display:grid;gap:8px;max-width:560px}
+input,select,button{font:inherit;padding:9px 12px;border:1px solid #94a3b8;border-radius:4px}
+button{cursor:pointer;background:#e8eef7;color:#182333}button:disabled{opacity:.6;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #245ac4;outline-offset:2px}
+table{border-collapse:collapse;width:100%;margin:20px 0}caption{text-align:left;font-weight:bold}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #c8ced6;overflow-wrap:anywhere}
+#status{min-height:24px}#status[data-error=true]{color:#991b1b}
+@media(max-width:700px){main{margin:12px;padding:18px}th,td{padding:6px}}
