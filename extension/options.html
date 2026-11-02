@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NoPhish domain lists</title>
+  <link rel="stylesheet" href="options.css">
+  <script src="options.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>NoPhish domain lists</h1>
+    <p>Your entries take priority over model analysis. Whitelisted domains return safe;
+      blacklisted domains return dangerous. Only the exact hostname is matched.</p>
+    <form id="domain-form">
+      <label for="domain">Domain or HTTP(S) URL</label>
+      <input id="domain" name="domain" placeholder="example.com" required autocomplete="off" maxlength="16384">
+      <label for="policy">Your decision</label>
+      <select id="policy" name="policy">
+        <option value="blacklist">Blacklist — dangerous</option>
+        <option value="whitelist">Whitelist — safe</option>
+      </select>
+      <button type="submit">Save domain</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <button id="refresh" type="button">Refresh list</button>
+    <table>
+      <caption>Saved domains</caption>
+      <thead><tr><th scope="col">Domain</th><th scope="col">List</th><th scope="col">Action</th></tr></thead>
+      <tbody id="entries"></tbody>
+    </table>
+    <p>Saving another decision for the same hostname replaces its previous entry.
+      Remove an entry to resume normal OCR and brand checks. Subdomains are separate:
+      example.com does not include www.example.com.</p>
+    <p>The local NoPhish server must be running. Decisions persist in its local SQLite database.</p>
+  </main>
+</body>
+</html>

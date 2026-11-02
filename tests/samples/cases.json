@@ -1,0 +1,8 @@
+[
+  {"file": "microsoft-login.png", "is_login": true, "brand": "microsoft", "approved_url": "https://login.microsoftonline.com/"},
+  {"file": "branded-login.png", "is_login": true, "brand": "unknown"},
+  {"file": "google-login.png", "is_login": true, "brand": "google", "approved_url": "https://accounts.google.com/"},
+  {"file": "facebook-login.png", "is_login": true, "brand": "meta", "approved_url": "https://www.facebook.com/"},
+  {"file": "hello-extension.png", "is_login": false},
+  {"file": "extensions-page.png", "is_login": false}
+]

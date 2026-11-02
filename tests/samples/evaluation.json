@@ -1,0 +1,7 @@
+[
+  {"file": "probe-unrelated.png", "is_login": true, "brand": "unknown", "cohort": "synthetic_probe"},
+  {"file": "probe-french.png", "is_login": true, "brand": "unknown", "cohort": "synthetic_probe"},
+  {"file": "probe-passwordless.png", "is_login": true, "brand": "unknown", "cohort": "synthetic_probe"},
+  {"file": "probe-article.png", "is_login": false, "cohort": "synthetic_probe"},
+  {"file": "probe-login-link.png", "is_login": false, "cohort": "synthetic_probe"}
+]

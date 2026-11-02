@@ -1,0 +1,1647 @@
+{
+  "gpu": "NVIDIA GeForce RTX 3080 Ti Laptop GPU",
+  "torch": "2.11.0+cu128",
+  "method": "CUDA-synchronized OCR wall time; three rounds; first excluded from summary; public/synthetic fixtures only; HiDPI is a synthetic layout, not a user capture.",
+  "summary": {
+    "original": {
+      "n": 24,
+      "median_ms": 314.1,
+      "p95_ms": 1142.1,
+      "gate_changes_vs_original": 0
+    },
+    "720p": {
+      "n": 24,
+      "median_ms": 305.6,
+      "p95_ms": 989.5,
+      "gate_changes_vs_original": 0
+    },
+    "720p-batch16": {
+      "n": 24,
+      "median_ms": 211.1,
+      "p95_ms": 348.0,
+      "gate_changes_vs_original": 0
+    }
+  },
+  "records": [
+    {
+      "file": "microsoft-login.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 609.7
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 239.0
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 251.1
+    },
+    {
+      "file": "branded-login.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 1401.8
+    },
+    {
+      "file": "branded-login.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 1259.7
+    },
+    {
+      "file": "branded-login.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 550.2
+    },
+    {
+      "file": "google-login.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 402.1
+    },
+    {
+      "file": "google-login.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 306.3
+    },
+    {
+      "file": "google-login.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 127.7
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 462.7
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 336.5
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 141.8
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 124.0
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 72.3
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 60.2
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 365.3
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 375.7
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 245.8
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 295.0
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 258.8
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 204.3
+    },
+    {
+      "file": "probe-french.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 294.5
+    },
+    {
+      "file": "probe-french.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 294.9
+    },
+    {
+      "file": "probe-french.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 220.0
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 258.9
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 245.5
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 200.4
+    },
+    {
+      "file": "probe-article.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 345.6
+    },
+    {
+      "file": "probe-article.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 343.4
+    },
+    {
+      "file": "probe-article.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 229.6
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 324.0
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 290.3
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 232.9
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 0,
+      "variant": "original",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        2560,
+        1440
+      ],
+      "gate": true,
+      "ms": 1312.4
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 0,
+      "variant": "720p",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        1280,
+        720
+      ],
+      "gate": true,
+      "ms": 416.8
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 0,
+      "variant": "720p-batch16",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        1280,
+        720
+      ],
+      "gate": true,
+      "ms": 315.1
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 146.7
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 86.5
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 207.4
+    },
+    {
+      "file": "branded-login.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 1050.2
+    },
+    {
+      "file": "branded-login.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 399.1
+    },
+    {
+      "file": "branded-login.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 1093.1
+    },
+    {
+      "file": "google-login.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 315.5
+    },
+    {
+      "file": "google-login.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 126.9
+    },
+    {
+      "file": "google-login.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 312.8
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 364.4
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 122.6
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 383.9
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 73.6
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 49.3
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 72.8
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 406.0
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 227.1
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 397.7
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 251.5
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 211.9
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 283.0
+    },
+    {
+      "file": "probe-french.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 295.6
+    },
+    {
+      "file": "probe-french.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 189.2
+    },
+    {
+      "file": "probe-french.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 276.6
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 255.2
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 212.8
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 277.5
+    },
+    {
+      "file": "probe-article.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 349.4
+    },
+    {
+      "file": "probe-article.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 243.8
+    },
+    {
+      "file": "probe-article.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 361.0
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 284.3
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 226.6
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 288.2
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 1,
+      "variant": "720p",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        1280,
+        720
+      ],
+      "gate": true,
+      "ms": 404.4
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 1,
+      "variant": "720p-batch16",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        1280,
+        720
+      ],
+      "gate": true,
+      "ms": 312.9
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 1,
+      "variant": "original",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        2560,
+        1440
+      ],
+      "gate": true,
+      "ms": 1298.3
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 87.4
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 213.5
+    },
+    {
+      "file": "microsoft-login.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        998,
+        296
+      ],
+      "input_size": [
+        998,
+        296
+      ],
+      "gate": true,
+      "ms": 132.3
+    },
+    {
+      "file": "branded-login.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 348.0
+    },
+    {
+      "file": "branded-login.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 1007.6
+    },
+    {
+      "file": "branded-login.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        799,
+        513
+      ],
+      "input_size": [
+        799,
+        513
+      ],
+      "gate": true,
+      "ms": 989.5
+    },
+    {
+      "file": "google-login.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 131.2
+    },
+    {
+      "file": "google-login.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 324.8
+    },
+    {
+      "file": "google-login.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        455,
+        506
+      ],
+      "input_size": [
+        455,
+        506
+      ],
+      "gate": true,
+      "ms": 317.8
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 122.7
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 401.5
+    },
+    {
+      "file": "facebook-login.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        474,
+        316
+      ],
+      "input_size": [
+        474,
+        316
+      ],
+      "gate": true,
+      "ms": 352.8
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 48.7
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 73.7
+    },
+    {
+      "file": "hello-extension.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        406,
+        330
+      ],
+      "input_size": [
+        406,
+        330
+      ],
+      "gate": false,
+      "ms": 69.2
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 238.3
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 340.8
+    },
+    {
+      "file": "extensions-page.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        966,
+        704
+      ],
+      "input_size": [
+        966,
+        704
+      ],
+      "gate": false,
+      "ms": 371.7
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 223.9
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 315.5
+    },
+    {
+      "file": "probe-unrelated.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 284.4
+    },
+    {
+      "file": "probe-french.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 210.3
+    },
+    {
+      "file": "probe-french.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 302.0
+    },
+    {
+      "file": "probe-french.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 287.8
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 201.6
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 250.1
+    },
+    {
+      "file": "probe-passwordless.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 238.5
+    },
+    {
+      "file": "probe-article.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 209.3
+    },
+    {
+      "file": "probe-article.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 326.1
+    },
+    {
+      "file": "probe-article.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": false,
+      "ms": 343.6
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 234.2
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 303.2
+    },
+    {
+      "file": "probe-login-link.png",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        1000,
+        700
+      ],
+      "input_size": [
+        1000,
+        700
+      ],
+      "gate": true,
+      "ms": 272.9
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 2,
+      "variant": "720p-batch16",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        1280,
+        720
+      ],
+      "gate": true,
+      "ms": 341.6
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 2,
+      "variant": "original",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        2560,
+        1440
+      ],
+      "gate": true,
+      "ms": 1142.1
+    },
+    {
+      "file": "synthetic-hidpi-2560x1440",
+      "round": 2,
+      "variant": "720p",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "input_size": [
+        1280,
+        720
+      ],
+      "gate": true,
+      "ms": 407.7
+    }
+  ]
+}

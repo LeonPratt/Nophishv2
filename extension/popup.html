@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NoPhish</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="options.js" defer></script>
+</head>
+<body>
+  <header><div class="mark" aria-hidden="true">N</div><div><h1>NoPhish</h1><p>Your domain decisions</p></div><button id="inspect-page" type="button" disabled>Inspect page</button></header>
+  <main>
+    <section class="card" aria-labelledby="current-label">
+      <h2 id="current-label">Current domain</h2>
+      <p id="current-domain">Loading current tab…</p>
+      <p id="current-rule">Checking your lists…</p>
+      <div class="actions">
+        <button id="allow-current" type="button" class="allow" disabled>Whitelist</button>
+        <button id="block-current" type="button" class="block" disabled>Blacklist</button>
+        <button id="remove-current" type="button" disabled>Remove entry</button>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="add-label">
+      <h2 id="add-label">Add a domain</h2>
+      <form id="domain-form">
+        <label for="domain">Domain or HTTP(S) URL</label>
+        <input id="domain" name="domain" placeholder="example.com" required autocomplete="off" maxlength="16384">
+        <div class="form-actions">
+          <label class="sr-only" for="policy">List</label>
+          <select id="policy" name="policy"><option value="whitelist">Whitelist</option><option value="blacklist">Blacklist</option></select>
+          <button type="submit" class="primary">Add domain</button>
+        </div>
+      </form>
+    </section>
+    <p id="status" role="status" aria-live="polite"></p>
+    <section class="card" aria-labelledby="saved-label">
+      <div class="section-heading"><h2 id="saved-label">Saved domains</h2><button id="refresh" type="button">Refresh</button></div>
+      <div class="list-scroll"><table><thead><tr><th scope="col">Domain</th><th scope="col">List</th><th scope="col">Action</th></tr></thead><tbody id="entries"></tbody></table></div>
+    </section>
+  </main>
+  <footer><span>Exact domains only. Lists take priority over analysis.</span><button id="open-options" type="button">Open full manager</button></footer>
+</body>
+</html>

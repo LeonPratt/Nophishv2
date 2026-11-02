@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>NoPhish local demo</title>
+<style>
+  body { margin: 28px; font: 17px/1.5 system-ui, sans-serif; background: #f4f6fa; }
+  button { padding: 8px 14px; margin: 0 8px 16px 0; }
+  img { display: block; width: min(100%, 998px); height: auto; }
+  [hidden] { display: none !important; }
+</style>
+<h1>NoPhish local demo</h1>
+<p>Public test imagery only. No credentials are collected.</p>
+<button id="accountButton">Account view</button>
+<button id="newsButton">News view</button>
+<button id="routeButton">Change route only</button>
+<article id="news">
+  <h2>Nature newsletter</h2>
+  <p>Explore woodland walks, garden birds, and autumn leaves.</p>
+  <p>Send an email to our editor for more information.</p>
+</article>
+<section id="account" hidden>
+  <img src="samples/microsoft-login.png" alt="Public Microsoft documentation test image">
+</section>
+<script>
+  let step = 0;
+  function render() {
+    const account = new URLSearchParams(location.search).get("view") === "account";
+    document.getElementById("account").hidden = !account;
+    document.getElementById("news").hidden = account;
+  }
+  function navigate(view) {
+    history.pushState({}, "", "?view=" + view);
+    render();
+  }
+  document.getElementById("accountButton").onclick = () => navigate("account");
+  document.getElementById("newsButton").onclick = () => navigate("news");
+  document.getElementById("routeButton").onclick = () => {
+    const query = new URLSearchParams(location.search);
+    query.set("step", ++step);
+    history.pushState({}, "", "?" + query); // Deliberately no DOM mutation.
+  };
+  addEventListener("popstate", render);
+  render();
+</script>
+</html>

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "NoPhish (local prototype)",
+  "version": "0.6.0",
+  "description": "Local GPU OCR, brand recognition, strict hostname checks, and phishing warnings.",
+  "icons": { "16": "logo.png", "32": "logo.png", "48": "logo.png", "128": "logo.png" },
+  "permissions": ["webNavigation"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "options_page": "options.html",
+  "action": { "default_title": "NoPhish: manage domain lists", "default_popup": "popup.html", "default_icon": "logo.png" },
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }]
+}
