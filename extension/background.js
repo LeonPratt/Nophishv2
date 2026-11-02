@@ -1,5 +1,8 @@
 const ENDPOINT = "http://127.0.0.1:8000/analyze";
 const POLICY_ENDPOINT = "http://127.0.0.1:8000/domain-policies";
+const brandsReady = fetch(chrome.runtime.getURL("brands.json"))
+  .then(response => { if (!response.ok) throw new Error(); return response.json(); })
+  .then(config => new Set(Object.keys(config))).catch(() => new Set());
 const tabs = new Map();
 let busy = false;
 let nextCapture = 0;
@@ -99,12 +102,12 @@ async function inspect(tabId) {
     }
     if (!response.ok) throw new Error("Local server rejected request");
     const result = await response.json();
-    const knownBrand = ["microsoft", "google", "meta"].includes(result?.brand);
+    const knownBrand = (await brandsReady).has(result?.brand);
     const listed = result?.source === "user_list" && result.brand === null &&
       ((result.policy === "whitelist" && result.verdict === "safe") ||
        (result.policy === "blacklist" && result.verdict === "dangerous"));
     if (!result || !["safe", "dangerous", "unknown", "not_login"].includes(result.verdict) ||
-        ![null, "unknown", "microsoft", "google", "meta"].includes(result.brand) ||
+        (!knownBrand && result.brand !== null && result.brand !== "unknown") ||
         (["safe", "dangerous"].includes(result.verdict) && !knownBrand && !listed) ||
         (result.verdict === "not_login" && result.brand !== null) || typeof result.reason !== "string") {
       throw new Error("Unexpected analysis response");

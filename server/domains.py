@@ -1,17 +1,16 @@
 """Small static login-host map. Entries are exact hosts, never suffix patterns."""
 
 import ipaddress
+import json
+from pathlib import Path
 import re
 from urllib.parse import urlsplit
 import idna
 
-# Reviewed login hosts only. See README for sources and coverage limitations.
-APPROVED_HOSTS = {
-    "microsoft": {"login.microsoftonline.com", "login.live.com", "login.microsoft.com"},
-    "google": {"accounts.google.com"},
-    "meta": {"facebook.com", "www.facebook.com", "m.facebook.com",
-             "instagram.com", "www.instagram.com", "web.whatsapp.com"},
-}
+# Shared with the extension so recognition and UI validation cannot drift.
+BRAND_CONFIG = json.loads((Path(__file__).resolve().parents[1] / "extension" / "brands.json").read_text(encoding="utf-8"))
+APPROVED_HOSTS = {brand: set(info["hosts"]) for brand, info in BRAND_CONFIG.items()}
+DEFAULT_WHITELIST = {info["primary"] for info in BRAND_CONFIG.values() if info["primary"]}
 
 
 def normalize_hostname(url):

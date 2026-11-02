@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from pathlib import Path
 import sqlite3
 
-from server.domains import normalize_hostname
+from server.domains import DEFAULT_WHITELIST, normalize_hostname
 
 DB_PATH = Path(__file__).resolve().parents[1] / ".data" / "domains.sqlite3"
 
@@ -25,6 +25,12 @@ def database():
                 hostname TEXT PRIMARY KEY,
                 policy TEXT NOT NULL CHECK (policy IN ('whitelist', 'blacklist'))
             )""")
+            connection.execute("CREATE TABLE IF NOT EXISTS policy_settings (key TEXT PRIMARY KEY)")
+            if not connection.execute("SELECT 1 FROM policy_settings WHERE key = 'initial_whitelist_v1'").fetchone():
+                # Seed once; subsequent removals and blacklist decisions must persist.
+                connection.executemany("INSERT OR IGNORE INTO domain_policies (hostname, policy) VALUES (?, 'whitelist')",
+                                       [(host,) for host in sorted(DEFAULT_WHITELIST)])
+                connection.execute("INSERT OR IGNORE INTO policy_settings (key) VALUES ('initial_whitelist_v1')")
             yield connection
     finally:
         connection.close()

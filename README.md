@@ -53,7 +53,10 @@ hostname actually saved. Saving the other decision replaces the previous one;
 removing an entry restores normal model analysis. No restart is needed for edits.
 
 Entries persist in the ignored `.data/domains.sqlite3`, storing only hostname
-and decision. Matching is exact: `example.com` does not include `www.example.com`
+and decision (plus a one-time initialization marker). The 40 primary domains in
+[extension/brands.json](extension/brands.json) are initially whitelisted. This
+initialization runs only once per database, so later removals or blacklist
+decisions persist. Matching is exact: `example.com` does not include `www.example.com`
 or `example.com.attacker.invalid`. Paths, ports, queries and fragments are not
 stored. User decisions override the built-in brand map; a whitelist is your
 instruction to bypass analysis, not a guarantee the site is harmless. Database
@@ -97,7 +100,7 @@ Download OCR weights once (Torch itself is approximately 2.6 GiB):
 OCR weights are cached in `.models/easyocr`. Install/start
 [Ollama for Windows](https://docs.ollama.com/windows) and separately download
 the model selected by `MODEL_ID` in [server/classifier.py](server/classifier.py)
-(currently **`qwen3.5:2b`**; model installation is user-managed). Change that
+(currently **`qwen3.5:0.8b`**; model installation is user-managed). Change that
 constant and restart the Python server to select another installed vision model;
 selecting a model in Ollama alone does not change NoPhish's API requests.
 NoPhish calls only `http://127.0.0.1:11434`: empty-prompt `/api/generate` at
@@ -158,15 +161,26 @@ results are discarded. No screenshot polling. Capture throttle: 1.1 s; timeout:
 roughly 0.6 s, plus the content script's 0.35 s where applicable; busy periods
 and throttling can add more.
 
-## Hostname policy
+## Supported brands and hostname policy
 
-[server/domains.py](server/domains.py) uses these exact hosts:
+[extension/brands.json](extension/brands.json) is the single brand registry used
+by the VLM prompt, strict label parser, [domain checks](server/domains.py) and
+extension response validation. It contains all 40 requested brands and their
+primary domains: the account, shopping and social services; UK banks; HMRC and
+GOV.UK; delivery services; and the ten AI services. It also retains the legacy
+`meta` label for WhatsApp/backward compatibility. Facebook and Instagram now
+have distinct `facebook` and `instagram` labels; Gemini, Copilot and Meta AI
+are separate from their parent-company brands. ChatGPT/OpenAI maps to `openai`,
+Claude/Anthropic to `anthropic`, and X/Twitter to `twitter`.
 
-| Brand | Approved hosts |
-| --- | --- |
-| microsoft | `login.microsoftonline.com`, `login.live.com`, `login.microsoft.com` |
-| google | `accounts.google.com` |
-| meta | `facebook.com`, `www.facebook.com`, `m.facebook.com`, `instagram.com`, `www.instagram.com`, `web.whatsapp.com` |
+The 40 primary domains are both initial user-whitelist entries (skip inference)
+and approved hosts for their brands (used when normal model analysis applies).
+A recognized brand on an unapproved host produces `dangerous` unless an
+explicit user-list decision overrides it. The existing extra Microsoft, Facebook,
+Instagram and WhatsApp hosts remain approved. All hosts are explicit: there are
+no implicit `www` aliases or regional, SSO or other subdomain exceptions. The
+primary domains were supplied by the user; they are not a complete list of each
+service's legitimate sign-in hosts.
 
 Parsing normalizes case, one trailing root dot and IDNA/UTS #46 names, rejecting
 malformed/ambiguous hosts. It checks the parsed hostname, never a substring,
@@ -194,13 +208,22 @@ OCR weights and a running local Ollama with the installed model; it overwrites
 [tests/evaluation-results.json](tests/evaluation-results.json) with limited metadata,
 labels, call counts and timings. Detection misses are reported; unavailable
 models, endpoint errors and gate/call-order violations abort the run.
+The sample check and evaluation deliberately bypass user-list overrides to
+measure the OCR/VLM/domain pipeline; default whitelisted hosts still run through
+the models in these diagnostic commands. Ordinary extension requests use the lists.
 
 After the Ollama migration, 29 Python tests passed, covering the HTTP/image
 contract, strict labels, preload/keep-alive, missing models, timeouts, invalid
 responses, GPU-placement rejection and the unchanged OCR/domain pipeline.
 The domain-list update adds persistence, exact matching, replacement/removal,
 pre-inference bypass, mutation validation, and warning/options action tests.
-**35 Python tests and 26 extension/content/options/popup tests pass.** The popup
+**39 Python tests and 27 extension/content/options/popup tests pass.** The brand
+tests cover all 40 initial whitelist entries, one-time seeding, all label mappings,
+per-brand hostname/lookalike checks, and warning responses for all supported
+labels. The expanded Ollama prompt also returned the expected Microsoft, Google
+and Facebook labels on the three existing public screenshots. The other newly
+added brands have not yet been evaluated on real screenshots; supported labels
+do not establish measured detection accuracy. The popup
 tests cover current-domain selection, whitelist/blacklist replacement and
 removal, restricted pages, server errors and manual inspection. The new warning
 and management page were also rendered in isolated headless Chrome using public
