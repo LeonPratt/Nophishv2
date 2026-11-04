@@ -1,4 +1,4 @@
-"""CUDA OCR gate, local brand recognition, then deterministic hostname checks."""
+"""Local login/brand recognition followed by deterministic hostname checks."""
 
 import asyncio
 import base64
@@ -14,8 +14,7 @@ from fastapi import FastAPI, HTTPException, Request
 from PIL import Image, UnidentifiedImageError
 from starlette.concurrency import run_in_threadpool
 
-from server.ocr import check_login, load_reader
-from server.classifier import classify_brand, load_classifier, normalize_brand
+from server.classifier import classify_brand, load_classifier, normalize_brand, MODEL_ID
 from server.domains import BRAND_CONFIG, normalize_hostname, verify_domain
 from server import policies
 
@@ -24,23 +23,14 @@ logger = logging.getLogger("uvicorn.error")
 
 @asynccontextmanager
 async def lifespan(app):
-    app.state.ocr_reader = None
     app.state.classifier = None
     app.state.gpu_lock = asyncio.Lock()
     try:
-        app.state.ocr_reader = await run_in_threadpool(load_reader)
-        logger.info("EasyOCR ready: detector and recognizer on CUDA")
+        app.state.classifier = await run_in_threadpool(load_classifier)
+        logger.info("Ollama ready: local login/brand model fully GPU-resident")
     except Exception as error:
-        # Never echo model/input data or silently fall back to CPU.
-        logger.error("EasyOCR unavailable (%s). CUDA is required; run python -m server.ocr --download-models. Analysis will return unknown.", type(error).__name__)
-    if app.state.ocr_reader is not None:
-        try:
-            app.state.classifier = await run_in_threadpool(load_classifier)
-            logger.info("Ollama ready: local brand model fully GPU-resident")
-        except Exception as error:
-            logger.error("VLM unavailable (%s). Start local Ollama with qwen3.5:2b installed and check GPU placement; restart this server after setup. Login pages will return unknown.", type(error).__name__)
+        logger.error("VLM unavailable (%s). Start local Ollama with %s installed and check GPU placement; restart this server after setup. Analysis will return unknown.", type(error).__name__, MODEL_ID)
     yield
-    app.state.ocr_reader = None
     app.state.classifier = None
 
 
@@ -143,28 +133,16 @@ async def analyze(request: Request):
             Image.DecompressionBombError, Image.DecompressionBombWarning):
         raise HTTPException(400, "Invalid or oversized screenshot image") from None
 
-    reader = getattr(request.app.state, "ocr_reader", None)
-    if reader is None:
-        return {"verdict": "unknown", "brand": None, "reason": "GPU OCR unavailable; analysis inconclusive"}
-    try:
-        async with request.app.state.gpu_lock:
-            is_login, elapsed_ms = await run_in_threadpool(check_login, reader, image_bytes)
-    except Exception:
-        logger.warning("OCR stage failed; verdict=unknown")
-        return {"verdict": "unknown", "brand": None, "reason": "OCR analysis failed; analysis inconclusive"}
-    logger.info("OCR gate: is_login=%s; ocr_ms=%.1f", is_login, elapsed_ms)
-    if not is_login:
-        return {"verdict": "not_login", "brand": None, "reason": "No login page detected"}
     classifier = getattr(request.app.state, "classifier", None)
     if classifier is None:
-        return {"verdict": "unknown", "brand": "unknown", "reason": "Login detected; GPU brand model unavailable"}
+        return {"verdict": "unknown", "brand": "unknown", "reason": "GPU login/brand model unavailable; analysis inconclusive"}
     try:
         async with request.app.state.gpu_lock:
             brand, vlm_ms = await run_in_threadpool(classify_brand, classifier, image_bytes)
         brand = normalize_brand(brand)
     except Exception:
         logger.warning("VLM stage failed; verdict=unknown")
-        return {"verdict": "unknown", "brand": "unknown", "reason": "Login detected; brand analysis failed"}
+        return {"verdict": "unknown", "brand": "unknown", "reason": "Login/brand analysis failed; analysis inconclusive"}
     logger.info("VLM stage: brand=%s; vlm_ms=%.1f", brand, vlm_ms)
     verdict = verify_domain(brand, url)
     brand_name = BRAND_CONFIG.get(brand, {}).get("names", brand).split(",")[0]
@@ -173,7 +151,7 @@ async def analyze(request: Request):
         "verdict": verdict,
         "brand": brand,
         "reason": {
-            "unknown": "Login detected; brand unknown",
+            "unknown": "No supported brand login detected; analysis inconclusive",
             "safe": f"Detected {brand} on an approved hostname; brand/domain consistency passed",
             "dangerous": f"This site is believed to be impersonating {brand_name}: the login page appears to be {brand_name}, but this domain is not approved for that brand.",
         }[verdict],

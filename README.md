@@ -1,373 +1,300 @@
-<<<<<<< HEAD
-Nophish v2
-=======
-﻿# NoPhish
+# NoPhish
 
 ![NoPhish banner](banner.png)
 
-A local Chrome MV3 prototype with user-managed domain decisions:
-**visible screenshot + URL → SQLite whitelist/blacklist → CUDA EasyOCR → English login gate → CUDA
-Qwen3-VL-2B through local Ollama → exact hostname check → browser warning**.
-Listed domains skip both models. For unlisted domains, rejected OCR gates skip
-the VLM. EasyOCR loads once; Ollama preloads and retains
-the installed brand model. CPU/partial model offload is rejected; no cloud inference.
+NoPhish is a local phishing-detection prototype for Chrome on Windows. It checks
+saved domain decisions first, then uses a local vision-language model to identify
+supported brands' login forms and compare them with the page's hostname.
 
-| Verdict | Meaning and display |
-| --- | --- |
-| `dangerous` | User-blacklisted domain, or known brand on an unapproved host; red `!` and dismissible notice |
-| `safe` | User-whitelisted domain, or known brand on an approved host; no warning |
-| `unknown` | Unsupported/uncertain brand or model failure; `?` |
-| `not_login` | OCR found insufficient login evidence; no warning |
+**Screenshot + URL -> SQLite domain lists -> Ollama login/brand classification -> exact hostname verification -> browser warning**
 
-Neither `safe` nor `not_login` guarantees a harmless page. NoPhish never blocks
-navigation, submits forms, or reads input values. Runtime screenshots, OCR text,
-credentials and URLs are never saved or logged. Only public test images are saved.
-Package/weight downloads need internet; inference stays local.
+The current model is **`qwen3.5:0.8b`**, served by Ollama on the NVIDIA GPU.
+There is no OCR stage: EasyOCR, RapidOCR, PyTorch and ONNX Runtime are no longer
+Python dependencies. Model installation is handled separately by the user.
 
-## Your whitelist and blacklist
+## How detection works
 
-Every analysis checks the normalized hostname in local SQLite **before image
-decoding, OCR, VLM inference or model-availability checks**. A whitelist hit
-immediately returns `safe`; a blacklist hit returns `dangerous`, both with
-`brand: null` and `source: user_list`. Unlisted domains follow the normal pipeline.
+1. The extension captures the **visible viewport**, not the entire scrollable
+   page, and sends its PNG screenshot and URL to `127.0.0.1:8000`.
+2. The server checks the normalized hostname in SQLite before image decoding or
+   inference. Whitelisted hosts immediately return `safe`; blacklisted hosts
+   immediately return `dangerous`.
+3. For an unlisted host, the server sends the screenshot to local Ollama. The
+   image fits within **1280 x 1280 pixels**, preserving aspect ratio without
+   upscaling. A recent 2560 x 1271 capture therefore becomes 1280 x 636.
+4. The model is instructed to return a label such as `microsoft_login` or
+   `google_login` for a supported brand's visible authentication form. Non-login
+   pages, unsupported brands and uncertain classifications all share `unknown`.
+5. Supported labels are converted to base brand names, such as `microsoft`, for
+   exact hostname verification. A supported brand login on an unapproved host
+   produces a warning. A brand prediction alone is not a danger verdict.
 
-When a warning appears, choose **Trust domain — whitelist** if it is a false
-warning, or **Confirm danger — blacklist** to remember it as dangerous. The
-**Why this warning?** section explains whether the alert comes from your blacklist
-or suspected impersonation of the named brand on an unapproved domain. Blacklist
-alerts use a distinct **NoPhish: blacklisted domain** heading. The
-alert also displays **Response time: … ms** for benchmarking. This uses the
-extension's monotonic clock immediately before the screenshot POST until the
-complete JSON result is received and decoded. It includes server processing and
-local request/response overhead, excluding screenshot capture, payload encoding,
-debounce and alert rendering. Alerts refreshed directly after a saved domain
-decision have no screenshot request and do not show a fabricated timing. The
-warning names the exact domain affected. Saving a whitelist decision clears
-the warning/badge immediately; blacklisting keeps the warning. A model verdict
-alone never adds an entry. Only an explicit user action saves a decision.
+The prompt asks the model to ignore instructions embedded in screenshots, logos
+without forms, navigation login links and secondary social sign-in buttons.
+These instructions reduce ambiguity but do not guarantee correct classification.
 
-Click the NoPhish toolbar icon to open the **domain-list popup**. It shows the
-current hostname and whether it is whitelisted or blacklisted, with quick
-**Whitelist**, **Blacklist** and **Remove entry** actions. Add any hostname or
-HTTP(S) URL using the form, and remove saved domains directly from the list.
-The current-domain actions are disabled on unsupported pages such as
-`chrome://extensions`; manual domain management is still available there.
-Choose **Inspect page** for a manual inspection/retry (the popup closes
-when inspection is scheduled). Click **Open full manager** for the larger
-options page; it is also available from the extension's Details page.
+| Result | Meaning | Extension display |
+| --- | --- | --- |
+| `dangerous` | Blacklisted hostname, or supported brand login on an unapproved host | Red `!` and dismissible warning |
+| `safe` | Whitelisted hostname, or supported brand login on an approved host | No warning |
+| `unknown` | No supported brand login detected, uncertainty, or analysis failure | `?` badge; no danger warning |
 
-The popup and options page share the same SQLite entries and accept a hostname
-or HTTP(S) URL, displaying the normalized
-hostname actually saved. Saving the other decision replaces the previous one;
-removing an entry restores normal model analysis. No restart is needed for edits.
+`unknown` is inconclusive, not verified safe. The current server does not emit a
+separate `not_login` result. NoPhish warns; it does not block navigation.
 
-Entries persist in the ignored `.data/domains.sqlite3`, storing only hostname
-and decision (plus a one-time initialization marker). The 40 primary domains in
-[extension/brands.json](extension/brands.json) are initially whitelisted. This
-initialization runs only once per database, so later removals or blacklist
-decisions persist. Matching is exact: `example.com` does not include `www.example.com`
-or `example.com.attacker.invalid`. Paths, ports, queries and fragments are not
-stored. User decisions override the built-in brand map; a whitelist is your
-instruction to bypass analysis, not a guarantee the site is harmless. Database
-errors return inconclusive `unknown` without running inference.
+## Requirements and setup
 
-The local API is `GET /domain-policies` to list entries; `PUT /domain-policies`
-with JSON `{"domain":"example.com","policy":"whitelist"}` (or `blacklist`) to
-save; `DELETE /domain-policies` with `{"domain":"example.com"}` to remove.
-Writes require `Content-Type: application/json` and
-`X-NoPhish-Action: domain-policy`; ordinary website origins are rejected and
-CORS is not enabled. The extension sends these requests from its background
-worker. Restart the Python server and reload the extension/test tabs after
-installing this update.
+- Windows with Chrome and **Python 3.11**.
+- An NVIDIA GPU with enough VRAM for the selected model. Development and the
+  recorded evaluation used an RTX 3080 Ti Laptop GPU with 16 GB VRAM.
+- [Ollama for Windows](https://docs.ollama.com/windows), running locally with
+  **`qwen3.5:0.8b` already installed**.
+- Node.js only if you want to run the extension's JavaScript tests.
 
-## Install (PowerShell, repository root)
-
-Use **Python 3.11**, an NVIDIA GPU and a driver supporting CUDA 12.8 wheels.
-Verified on an RTX 3080 Ti Laptop GPU (16 GiB). Install CUDA wheels first
-([EasyOCR Windows setup](https://github.com/JaidedAI/EasyOCR#installation),
-[PyTorch commands](https://pytorch.org/get-started/previous-versions/)):
+Run these commands in the repository root:
 
 ```powershell
 py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Alternatively use `uv venv --python 3.11`, then `uv pip install --python
-.venv\Scripts\python.exe` with the same package/index arguments and requirements.
-Do not reuse a venv created with another Python version: compiled packages may
-remain. Stop the server and use `uv venv --python 3.11 --clear .venv` to replace
-an existing mixed environment, then repeat both dependency installations.
-
-Download OCR weights once (Torch itself is approximately 2.6 GiB):
+If you use `uv`:
 
 ```powershell
-.\.venv\Scripts\python.exe -m server.ocr --download-models --check-samples
+uv venv --python 3.11
+uv pip install --link-mode copy --python .venv\Scripts\python.exe -r requirements-dev.txt
+uv pip check --python .venv\Scripts\python.exe
 ```
 
-OCR weights are cached in `.models/easyocr`. Install/start
-[Ollama for Windows](https://docs.ollama.com/windows) and separately download
-the model selected by `MODEL_ID` in [server/classifier.py](server/classifier.py)
-(currently **`qwen3.5:0.8b`**; model installation is user-managed). Change that
-constant and restart the Python server to select another installed vision model;
-selecting a model in Ollama alone does not change NoPhish's API requests.
-NoPhish calls only `http://127.0.0.1:11434`: empty-prompt `/api/generate` at
-startup to preload, `/api/chat` for classification, and `/api/ps` to verify GPU
-residency. It never invokes a pull/download endpoint or follows redirects, and
-ignores HTTP proxy environment settings. The previous Transformers cache at
-`.models/qwen3-vl-2b` is no longer used; Transformers is no longer a dependency.
+Use `requirements.txt` instead for runtime dependencies only. The development
+requirements currently include the same runtime packages. Old OCR packages and
+`.models` caches are unused; no OCR weights or CUDA-enabled Python packages need
+to be installed.
 
-Requests use a fixed prompt, `temperature: 0`, `num_predict: 8`, `think: false`,
-`stream: false`, and `keep_alive: -1` to retain the model. Only the image goes
-to Ollama, resized in memory to fit 1280 × 1280; never the page URL or OCR text.
-Only exact supported labels are accepted. Ollama must report the model fully
-resident in VRAM; missing placement data, CPU/partial offload, timeouts and
-invalid responses fail to `unknown`. Startup preload has a 60-second timeout;
-classification requests have an 8-second timeout. If setup was incomplete at
-startup, finish it and restart NoPhish. Working OCR can still return `not_login`
-when Ollama is unavailable. Check `ollama ps` for GPU placement.
+The model is selected by `MODEL_ID` in [server/classifier.py](server/classifier.py).
+To change it, install a compatible vision model separately, update that constant,
+and restart NoPhish. Selecting a different model in Ollama alone does not change
+NoPhish's requests. NoPhish never downloads a model automatically.
 
-## Start and load
+## Start the server
 
-### Automatic, hidden Windows startup
-
-Double-click [start_nophish.vbs](start_nophish.vbs) to start NoPhish without a
-command prompt window. It uses this project's `.venv\Scripts\pythonw.exe`,
-sets the working directory automatically, and prevents duplicate launcher
-instances (including while models load). If port 8000 is occupied, it exits
-without starting another server. If needed, it starts an installed local
-`ollama serve` without a console and waits up to 60 seconds for Ollama. It
-does not download models or install dependencies.
-
-To run it automatically when you **sign in to Windows**:
-
-1. Press **Win+R**, enter `shell:startup`, and press Enter.
-2. In that folder, choose **New → Shortcut**, then browse to this project's
-   `start_nophish.vbs`. Name the shortcut **NoPhish**.
-3. Keep the actual launcher in the project folder; put only its shortcut in
-   Startup. If you move the project, update the shortcut.
-
-Diagnostics go to `.data/startup.log` (rotated at 1 MB, two backups), containing
-the same limited stage/status/timing logs as the console server. Model-loading
-time still applies. If it fails, check that log, fix setup, and run the launcher
-again. Remove the shortcut to disable automatic startup. To stop a hidden
-instance, use Task Manager's **Details** tab, enable the **Command line** column,
-and end the Python process whose command line contains this project's
-`startup.pyw` (the process may be named `pythonw.exe` or `python.exe`, depending
-on the virtual-environment launcher). Closing Chrome does not stop the local
-server or Ollama.
-
-The normal console command below is still available for debugging. Do not run
-it alongside a hidden instance on the same port.
-
-### Manual console startup
+For a visible console:
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn server.main:app --host 127.0.0.1 --port 8000 --no-access-log
 ```
 
-Wait for `EasyOCR ready: detector and recognizer on CUDA` and
-`Ollama ready: local brand model fully GPU-resident`. Use one worker and loopback only.
-GPU stages share a lock and run outside the event loop. Request limit: 8 MiB;
-PNG/JPEG limit: 6 MiB and 20 million pixels. Images are decoded in memory.
-Chrome captures at the native visible-tab resolution (viewport/display scaling
-dependent). OCR now fits that image inside **1280 × 720**, preserving aspect ratio
-and never upscaling, and recognizes text boxes in batches of 16. Dimension-only
-diagnostics show the original and OCR input sizes. The VLM retains its separate
-1280 × 1280 cap and receives the original screenshot bytes.
+Wait for `Ollama ready: local login/brand model fully GPU-resident`.
+Use one worker. GPU requests are serialized with a lock and run outside the
+server's event loop. If Ollama/model setup fails, unlisted analyses return
+`unknown`; saved domain decisions still work in the running server.
 
-1. Open `chrome://extensions`, enable Developer mode, **Load unpacked** the
-   `extension` folder and pin NoPhish. Reload the extension and test tabs after updates.
-2. Automatic [visible-tab capture](https://developer.chrome.com/docs/extensions/reference/api/tabs#method-captureVisibleTab)
-   requires `<all_urls>`; `webNavigation` tracks SPA routes. Content scripts run
-   on HTTP(S) only. Analysis goes solely to `http://127.0.0.1:8000/analyze`.
-3. Serve the public fixtures in another terminal:
+### Hidden Windows startup
 
-   ```powershell
-   .\.venv\Scripts\python.exe -m http.server 8001 --bind 127.0.0.1 --directory tests
-   ```
+Double-click [start_nophish.vbs](start_nophish.vbs) to launch without a console.
+It runs [startup.pyw](startup.pyw) with this project's virtual environment,
+prevents duplicate launcher instances, and exits if port 8000 is already in use.
+It can start an installed `ollama serve` in the background and waits up to
+60 seconds for Ollama. It does not install dependencies or download models.
+If Ollama never becomes available, the hidden launcher exits and logs the issue.
 
-4. Open `http://127.0.0.1:8001/demo.html?view=account`: expect a red `!` and
-   **NoPhish: possible phishing page** for the copied Microsoft image on localhost.
-   Dismiss the notice; the badge remains. Choose **News view** to clear it, then
-   **Account view**, Back/Forward and **Change route only** to check SPA handling.
-5. Check `/login.html` for `unknown` and `/ordinary.html` for `not_login`.
-   Stop the server to check `OFF`; capture/response errors show `ERR`.
-   Click the toolbar icon and choose **Inspect page** to retry. No forms need to be filled in.
+To start automatically when you sign in to Windows:
 
-Load, activation, navigation and a newly visible password field trigger debounced
-inspection; a password field is not required. Duplicate events coalesce and stale
-results are discarded. No screenshot polling. Capture throttle: 1.1 s; timeout:
-10 s; automatic offline cooldown: 15 s (manual retry bypasses it). Debounce adds
-roughly 0.6 s, plus the content script's 0.35 s where applicable; busy periods
-and throttling can add more.
+1. Press **Win+R**, enter `shell:startup`, and press Enter.
+2. Create a shortcut in that folder pointing to this project's `start_nophish.vbs`.
+3. Leave the actual launcher in the repository. Update the shortcut if you move it.
+
+Diagnostics are written to `.data/startup.log`, rotated at 1 MB with two backups.
+Remove the shortcut to disable automatic startup. Closing Chrome does not stop
+NoPhish or Ollama.
+
+### Restart a hidden server
+
+In Task Manager, open **Details**, enable the **Command line** column, and end the
+Python process whose command line contains this project's full `startup.pyw`
+path. It may be named `python.exe` or `pythonw.exe`. Then double-click
+`start_nophish.vbs` again. For a manual console server, press **Ctrl+C** and rerun
+the console command. Avoid running a console server alongside the hidden one.
+
+## Load and use the extension
+
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Choose **Load unpacked**, select the [extension](extension) folder, and pin NoPhish.
+3. Browse normally, or click the toolbar icon and choose **Inspect page** to retry.
+
+Reload the extension and affected tabs after extension code updates. Server-only
+changes require a server restart, not an extension reload.
+
+The extension uses a Manifest V3 service worker, `webNavigation`, and
+`<all_urls>` access for visible-tab capture. Content scripts run on HTTP(S) pages.
+Load, activation, navigation, SPA route changes and newly visible password fields
+can trigger debounced inspection; a password field is not a prerequisite.
+Duplicate events coalesce and stale results are discarded. There is no continuous
+screenshot polling. Capture throttling, debounce and queueing add time before a
+request; the local request timeout is 10 seconds. Offline and request errors
+appear as `OFF` and `ERR`; **Inspect page** provides a manual retry.
+
+### Domain lists and warnings
+
+Click the toolbar icon to:
+
+- Whitelist, blacklist or remove the current hostname.
+- Add another hostname or HTTP(S) URL manually.
+- View and remove saved entries.
+- Open the full manager in the extension's options page.
+
+Unsupported pages such as `chrome://extensions` disable current-page actions;
+manual domain management remains available. Saving the opposite decision replaces
+the previous entry. Removing an entry restores normal model analysis. Changes
+apply immediately, without restarting the server.
+
+Danger warnings explain whether the hostname is blacklisted or the page appears
+to impersonate a named brand. **Trust domain - whitelist** and **Confirm danger -
+blacklist** save your decision. Model predictions never populate either list
+automatically. Dismissing a notice leaves the danger badge in place; whitelisting
+clears it.
+
+Entries persist in `.data/domains.sqlite3`. The 40 primary domains in
+[extension/brands.json](extension/brands.json) are seeded into the whitelist once
+per database. Later removals and blacklist decisions persist across restarts.
+Matching is exact: `example.com` does not cover `www.example.com`, other
+subdomains or `example.com.attacker.invalid`. A whitelist entry explicitly skips
+analysis; it does not establish that a site is harmless.
+
+### Alert timer
+
+Danger alerts display **Response time: ... ms**. The timer starts immediately
+before the screenshot POST and ends after the complete JSON response has been
+received and decoded. It includes server processing and local request/response
+overhead, excluding capture, payload encoding, debounce and rendering. A warning
+refreshed directly from a saved decision has no new screenshot request and shows
+no fabricated timing.
 
 ## Supported brands and hostname policy
 
-[extension/brands.json](extension/brands.json) is the single brand registry used
-by the VLM prompt, strict label parser, [domain checks](server/domains.py) and
-extension response validation. It contains all 40 requested brands and their
-primary domains: the account, shopping and social services; UK banks; HMRC and
-GOV.UK; delivery services; and the ten AI services. It also retains the legacy
-`meta` label for WhatsApp/backward compatibility. Facebook and Instagram now
-have distinct `facebook` and `instagram` labels; Gemini, Copilot and Meta AI
-are separate from their parent-company brands. ChatGPT/OpenAI maps to `openai`,
-Claude/Anthropic to `anthropic`, and X/Twitter to `twitter`.
+[extension/brands.json](extension/brands.json) is the shared registry for prompt
+labels, approved hostnames, initial whitelist entries and extension validation.
+It covers the 40 requested account, shopping, social, UK banking, government,
+delivery and AI brands, plus a legacy `meta` label for WhatsApp compatibility.
+Gemini, Copilot, Meta AI, Facebook and Instagram have separate labels from their
+parent companies. ChatGPT/OpenAI maps to `openai`, Claude/Anthropic to
+`anthropic`, and X/Twitter to `twitter`.
 
-The 40 primary domains are both initial user-whitelist entries (skip inference)
-and approved hosts for their brands (used when normal model analysis applies).
-A recognized brand on an unapproved host produces `dangerous` unless an
-explicit user-list decision overrides it. The existing extra Microsoft, Facebook,
-Instagram and WhatsApp hosts remain approved. All hosts are explicit: there are
-no implicit `www` aliases or regional, SSO or other subdomain exceptions. The
-primary domains were supplied by the user; they are not a complete list of each
-service's legitimate sign-in hosts.
+All approved hosts are explicit. There are no inferred `www`, regional, tenant,
+SSO or other subdomain exceptions. The primary domains are not a comprehensive
+list of every legitimate login host. The parser normalizes case, a trailing
+root dot and IDNA/UTS #46 names; it compares parsed hostnames rather than URL
+substrings. Paths, queries, ports and HTTPS alone do not establish trust.
+Explicit user-list decisions take precedence over model/domain checks.
 
-Parsing normalizes case, one trailing root dot and IDNA/UTS #46 names, rejecting
-malformed/ambiguous hosts. It checks the parsed hostname, never a substring,
-user info or query. HTTPS, ports and paths do not establish trust. No inferred
-subdomains or remote lookups. Explicit user-list decisions are checked first.
-References: [Microsoft](https://support.microsoft.com/en-us/office/troubleshoot-sign-in-issues-for-support-microsoft-com),
-[login.microsoft.com](https://learn.microsoft.com/en-us/microsoft-365/copilot/add-copilot-endpoints-allowlist),
-[Google](https://support.google.com/chrome/answer/7299973),
-[Facebook](https://www.facebook.com/login/), [Instagram](https://www.instagram.com/accounts/login/),
-[WhatsApp Web](https://blog.whatsapp.com/whats-app-web).
+## Local API and data handling
 
-## Evaluation and checks
+The server listens on **`http://127.0.0.1:8000`**. The extension sends analysis
+requests from its background worker; CORS is not enabled.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /analyze` | JSON with `url` and a PNG/JPEG base64 data URL in `screenshot`; returns `verdict`, `brand` and `reason` |
+| `GET /domain-policies` | List saved hostname decisions |
+| `PUT /domain-policies` | Save `{"domain":"example.com","policy":"whitelist"}` or `blacklist` |
+| `DELETE /domain-policies` | Remove `{"domain":"example.com"}` |
+
+List writes require `Content-Type: application/json` and
+`X-NoPhish-Action: domain-policy`; ordinary website origins are rejected.
+User-list results also include `source: user_list` and `brand: null`.
+Database errors return `unknown` without inference.
+
+Only screenshot images and the fixed prompt go to Ollama at `127.0.0.1:11434`;
+the page URL is used by the Python server for domain checks. The server uses
+`/api/generate` for preloading, `/api/chat` for inference and `/api/ps` to verify
+full GPU residency. CPU/partial offload is rejected. Requests ignore HTTP proxy
+environment settings and do not follow redirects.
+
+The model stays loaded with `keep_alive: -1`. Inference uses `temperature: 0`,
+`think: false`, `stream: false` and `num_predict: 16`. Startup preload has a
+60-second timeout; classification has an 8-second timeout.
+
+Runtime screenshots, URLs and raw model text are not saved or logged. The
+extension does not read form input values. SQLite stores normalized hostnames,
+decisions and a seed marker; logs contain limited status, label and timing data.
+Images are processed in memory. Limits are 8 MiB per request, 6 MiB per image,
+and 20 million decoded pixels. Dependency/model installation needs internet;
+inference has no cloud dependency.
+
+## Tests and current evaluation
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
 node --test tests/extension.test.cjs tests/content.test.cjs tests/options.test.cjs tests/popup.test.cjs
 .\.venv\Scripts\python.exe -m server.classifier --check-samples
 .\.venv\Scripts\python.exe tests/evaluate.py
-.\.venv\Scripts\python.exe tests/benchmark_ocr.py
 ```
 
-Node.js is needed only for extension tests. Unit tests mock Ollama HTTP responses
-and require no downloaded VLM. The sample check/evaluation requires cached CUDA
-OCR weights and a running local Ollama with the installed model; it overwrites
-[tests/evaluation-results.json](tests/evaluation-results.json) with limited metadata,
-labels, call counts and timings. Detection misses are reported; unavailable
-models, endpoint errors and gate/call-order violations abort the run.
-The sample check and evaluation deliberately bypass user-list overrides to
-measure the OCR/VLM/domain pipeline; default whitelisted hosts still run through
-the models in these diagnostic commands. Ordinary extension requests use the lists.
+The current backend passes **41 Python tests**. Unit tests mock Ollama responses
+and cover strict login labels, shared `unknown`, request/image validation, model
+failure, GPU placement, hostname verification, domain-list bypass and startup.
+The real Ollama smoke check passes **9 scenarios across 6 public images**.
 
-After the Ollama migration, 29 Python tests passed, covering the HTTP/image
-contract, strict labels, preload/keep-alive, missing models, timeouts, invalid
-responses, GPU-placement rejection and the unchanged OCR/domain pipeline.
-The domain-list update adds persistence, exact matching, replacement/removal,
-pre-inference bypass, mutation validation, and warning/options action tests.
-**47 Python tests and 29 extension/content/options/popup tests pass.** The Windows
-startup checks include a real named-mutex duplicate guard, dependency waiting,
-windowless subprocess flags and loopback-only server settings. The windowless
-launcher also passed a real start with both GPU stages ready. The brand
-tests cover all 40 initial whitelist entries, one-time seeding, all label mappings,
-per-brand hostname/lookalike checks, and warning responses for all supported
-labels. The expanded Ollama prompt also returned the expected Microsoft, Google
-and Facebook labels on the three existing public screenshots. The other newly
-added brands have not yet been evaluated on real screenshots; supported labels
-do not establish measured detection accuracy. The popup
-tests cover current-domain selection, whitelist/blacklist replacement and
-removal, restricted pages, server errors and manual inspection. The new warning
-and management page were also rendered in isolated headless Chrome using public
-fixtures and simulated extension messaging. The actual background script also
-passed a live localhost HTTP check against an isolated FastAPI/SQLite server:
-whitelist returned safe, blacklist dangerous, and removal restored normal
-analysis, with both models unavailable. Native extension installation and UI
-clicks can be checked manually using the demo.
-Historical results below remain the Transformers baseline, not current Ollama
-accuracy or latency measurements.
+The evaluation commands require the installed model and running Ollama. They
+bypass saved domain decisions so approved hosts still exercise the model.
+[tests/evaluate.py](tests/evaluate.py) runs three rounds and writes labels,
+call counts and timings to
+[tests/vlm-only-evaluation-results.json](tests/vlm-only-evaluation-results.json).
+The branded article probes are generated in memory; user captures are never used.
 
-### Historical Transformers baseline (not Ollama results)
+Recorded on **4 November 2026**, with `qwen3.5:0.8b`:
 
-The following evaluation was recorded before migration on 2 November 2026:
-Python 3.11.15, Torch 2.11.0+cu128, EasyOCR 1.7.2, Transformers 5.22.1,
-RTX 3080 Ti Laptop GPU, Qwen3-VL-2B-Instruct in BF16. Both OCR models and all
-VLM parameters were verified on CUDA. These measurements do not establish
-Ollama accuracy or speed; re-run evaluation after installing the Ollama model.
-
-Evaluation: **11 images, 14 scenarios, three rounds / 42 requests**. Six public
-documentation screenshots from development plus five new synthetic probes;
-[fixture sources and labels](tests/samples/README.md). Each real Microsoft,
-Google and Facebook image is replayed unchanged with an approved host and
-`fixture.invalid`, simulating an exact visual copy. URLs are local request data;
-no external site is contacted. This is not an independent accuracy benchmark or
-collected phishing dataset: development images informed the prompt and the new
-probes are synthetic.
-
-| Measure (unique images/scenarios, first round) | Result |
+| Measure | Result |
 | --- | --- |
-| Login gate pass / miss | 5/7 passed (71.4%); 2/7 missed |
-| Ordinary gate false passes | 1/4 (25%) |
-| Brand accuracy on gate-passing login images | 5/5: 3 supported brands, 2 unknown |
-| Supported-brand copies / approved counterparts | 3/3 dangerous; 3/3 safe |
-| False warnings on benign scenarios | 0/11 |
-| Expected final verdicts | 11/14 |
-| VLM calls after OCR rejection | 0 across all 15 rejected requests |
+| Images / URL scenarios | 13 / 16 |
+| Correct first-round verdicts | 15 / 16 |
+| Supported login brands identified | 3 / 3 |
+| False warnings in benign scenarios | 1 / 13 |
+| Label changes across repeat rounds | 0 |
+| Warm endpoint median / p95 | 244 ms / 724 ms |
 
-Labels/verdicts stayed stable across rounds. Development gate checks: 4/4 logins
-and 2/2 ordinary pages correct. New probes: 1/3 logins passed and 1/2 ordinary
-pages rejected correctly. The French login and passwordless Continue form
-were missed (`not_login`). An article's Log in navigation caused an extra VLM
-call and `unknown`, without a warning. These failures were retained without
-tuning the production rules against the evaluation probes.
+Warm timings use 32 requests after excluding the first round. They include
+in-process API handling, Ollama HTTP, preprocessing, inference and GPU-placement
+checks, excluding browser capture, debounce and browser/server socket transport.
+Repeated identical screenshots can benefit from Ollama caching. These small
+fixture measurements do not predict normal browsing latency or establish
+independent detection accuracy.
 
-| Warm latency (rounds 2–3) | Median | Nearest-rank p95 | Requests |
-| --- | --- | --- | --- |
-| EasyOCR GPU stage | 195 ms | 329 ms | 28 |
-| Qwen GPU stage | 559 ms | 1,358 ms | 18 |
-| API total, gate passed | 689 ms | 1,609 ms | 18 |
-| API total, gate rejected | 250 ms | 263 ms | 10 |
+The known failure is a synthetic Google article with a **Sign in** navigation
+link but no authentication form: the model labels it `google_login`, producing
+a false warning on an unapproved hostname. The corresponding synthetic Microsoft
+article returns `unknown`. Only Microsoft, Google and Facebook have real branded
+login fixtures in this set; registry support does not establish measured accuracy
+for all brands. See [fixture details](tests/samples/README.md).
 
-These historical results include the OCR sizing/batching change below;
-the VLM used Transformers. GPU stages use
-CUDA-synchronized wall time including CPU preprocessing, not
-kernel-only timings. API totals use in-process FastAPI TestClient, including
-JSON handling, validation and analysis; excluding startup, socket transport,
-browser capture and trigger/debounce delays. First-round timings are retained
-but excluded from warm summaries. Small samples and laptop power/thermal state
-limit comparisons. Qwen fits the target GPU. The optional SmolVLM comparison
-has not been performed; no faster-model accuracy claim is made. Current Ollama
-VLM timing measures preprocessing, HTTP, inference and GPU-placement checks;
-its prompt/decode/load durations are separately logged from API nanoseconds.
+For a manual extension demo:
 
-### OCR sizing/batching comparison
+```powershell
+.\.venv\Scripts\python.exe -m http.server 8001 --bind 127.0.0.1 --directory tests
+```
 
-[tests/ocr-performance.json](tests/ocr-performance.json) records a paired
-comparison on the 11 public/synthetic images plus one synthetic 2560 × 1440
-empty-field login layout. Three rounds, with rotated variant order and the first
-round excluded from summaries; no user screenshots were stored.
+Open `http://127.0.0.1:8001/demo.html?view=account`. The Microsoft login image on
+localhost should warn; the news view should return `unknown`. Try navigation,
+Back/Forward, dismissing the warning, list edits and **Inspect page**. Avoid
+whitelisting localhost if you want the demo to exercise model inference.
 
-| OCR settings | Warm median | Warm p95 |
-| --- | --- | --- |
-| Original size, batch 1 | 314 ms | 1,142 ms |
-| Fit 1280 × 720, batch 1 | 306 ms | 990 ms |
-| Fit 1280 × 720, batch 16 (current) | 211 ms | 348 ms |
+Older OCR/Transformers benchmark JSON files remain as historical artifacts.
+Their stages, datasets and timings are not the current pipeline.
 
-The synthetic HiDPI case averaged 1,220 ms originally versus 327 ms with both
-changes. Gate results matched the original in every paired check. Most existing
-fixtures are already below 720p, so batching provides much of their improvement.
-This measures complete GPU-backed OCR wall time, including CPU work, rather
-than individual CUDA kernels. Lower resolution can still miss small text on
-unseen pages. Restart the server to apply changes.
+## Limitations
 
-## Known limitations
+This is a prototype. The VLM can mistake branded content for a login, miss real
+forms, misidentify a brand or follow instructions embedded in an image. The
+shared `unknown` label does not distinguish ordinary pages from unsupported
+logins or failures. Every unlisted screenshot reaches the VLM.
 
-The English gate accepts sign in / signin / log in / login, or password plus
-an identity term. OCR errors, small text, other languages and passwordless flows
-can skip brand analysis; ordinary login links can trigger it. Only visible
-content is checked. The host map omits legitimate tenant, regional and SSO hosts,
-so false warnings remain possible despite none in this tiny set. Brand labels
-can be wrong; fixed prompting and strict parsing do not guarantee resistance
-to instructions embedded in images. Unsupported brands remain unknown.
+Only the visible viewport is analyzed. Same-URL changes without a newly visible
+password field may need a manual retry. The explicit hostname map can omit
+legitimate login hosts and cause false warnings. A page can remove an injected
+notice; the browser-owned badge is separate. Native installation and real
+capture/navigation should be checked with the manual demo. No result guarantees
+that a website is harmless.
 
-Same-URL changes without a newly visible password field may need a toolbar
-retry; service-worker restarts reset deduplication. A hostile page can remove
-the in-page notice; the browser-owned badge is separate. Automated tests simulate
-Chrome APIs. The notice was visually checked in isolated headless Chrome;
-native installation, permissions and capture/navigation still require the
-manual demo check above. This is a local prototype, not general browser protection.
-See [plan.md](plan.md) for scope.
->>>>>>> Master
+The original milestones in [plan.md](plan.md) retain historical context; its
+current implementation note supersedes the removed OCR requirements.
