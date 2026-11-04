@@ -68,4 +68,5 @@ def entries():
 def verdict(host, policy):
     return {"hostname": host, "policy": policy, "source": "user_list", "brand": None,
             "verdict": "safe" if policy == "whitelist" else "dangerous",
-            "reason": "Domain is on your " + policy + "; model analysis skipped"}
+            "reason": "This domain is on your blacklist. You marked it as dangerous."
+                      if policy == "blacklist" else "Domain is on your whitelist; model analysis skipped"}

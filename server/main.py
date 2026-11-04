@@ -16,7 +16,7 @@ from starlette.concurrency import run_in_threadpool
 
 from server.ocr import check_login, load_reader
 from server.classifier import classify_brand, load_classifier, normalize_brand
-from server.domains import normalize_hostname, verify_domain
+from server.domains import BRAND_CONFIG, normalize_hostname, verify_domain
 from server import policies
 
 logger = logging.getLogger("uvicorn.error")
@@ -167,6 +167,7 @@ async def analyze(request: Request):
         return {"verdict": "unknown", "brand": "unknown", "reason": "Login detected; brand analysis failed"}
     logger.info("VLM stage: brand=%s; vlm_ms=%.1f", brand, vlm_ms)
     verdict = verify_domain(brand, url)
+    brand_name = BRAND_CONFIG.get(brand, {}).get("names", brand).split(",")[0]
     logger.info("Domain stage: verdict=%s; brand=%s", verdict, brand)
     return {
         "verdict": verdict,
@@ -174,6 +175,6 @@ async def analyze(request: Request):
         "reason": {
             "unknown": "Login detected; brand unknown",
             "safe": f"Detected {brand} on an approved hostname; brand/domain consistency passed",
-            "dangerous": f"Possible {brand} impersonation: hostname is not approved for this brand",
+            "dangerous": f"This site is believed to be impersonating {brand_name}: the login page appears to be {brand_name}, but this domain is not approved for that brand.",
         }[verdict],
     }

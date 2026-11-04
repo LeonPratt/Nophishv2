@@ -33,6 +33,9 @@ immediately returns `safe`; a blacklist hit returns `dangerous`, both with
 
 When a warning appears, choose **Trust domain — whitelist** if it is a false
 warning, or **Confirm danger — blacklist** to remember it as dangerous. The
+**Why this warning?** section explains whether the alert comes from your blacklist
+or suspected impersonation of the named brand on an unapproved domain. Blacklist
+alerts use a distinct **NoPhish: blacklisted domain** heading. The
 warning names the exact domain affected. Saving a whitelist decision clears
 the warning/badge immediately; blacklisting keeps the warning. A model verdict
 alone never adds an entry. Only an explicit user action saves a decision.
@@ -120,6 +123,39 @@ startup, finish it and restart NoPhish. Working OCR can still return `not_login`
 when Ollama is unavailable. Check `ollama ps` for GPU placement.
 
 ## Start and load
+
+### Automatic, hidden Windows startup
+
+Double-click [start_nophish.vbs](start_nophish.vbs) to start NoPhish without a
+command prompt window. It uses this project's `.venv\Scripts\pythonw.exe`,
+sets the working directory automatically, and prevents duplicate launcher
+instances (including while models load). If port 8000 is occupied, it exits
+without starting another server. If needed, it starts an installed local
+`ollama serve` without a console and waits up to 60 seconds for Ollama. It
+does not download models or install dependencies.
+
+To run it automatically when you **sign in to Windows**:
+
+1. Press **Win+R**, enter `shell:startup`, and press Enter.
+2. In that folder, choose **New → Shortcut**, then browse to this project's
+   `start_nophish.vbs`. Name the shortcut **NoPhish**.
+3. Keep the actual launcher in the project folder; put only its shortcut in
+   Startup. If you move the project, update the shortcut.
+
+Diagnostics go to `.data/startup.log` (rotated at 1 MB, two backups), containing
+the same limited stage/status/timing logs as the console server. Model-loading
+time still applies. If it fails, check that log, fix setup, and run the launcher
+again. Remove the shortcut to disable automatic startup. To stop a hidden
+instance, use Task Manager's **Details** tab, enable the **Command line** column,
+and end the Python process whose command line contains this project's
+`startup.pyw` (the process may be named `pythonw.exe` or `python.exe`, depending
+on the virtual-environment launcher). Closing Chrome does not stop the local
+server or Ollama.
+
+The normal console command below is still available for debugging. Do not run
+it alongside a hidden instance on the same port.
+
+### Manual console startup
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn server.main:app --host 127.0.0.1 --port 8000 --no-access-log
@@ -217,7 +253,10 @@ contract, strict labels, preload/keep-alive, missing models, timeouts, invalid
 responses, GPU-placement rejection and the unchanged OCR/domain pipeline.
 The domain-list update adds persistence, exact matching, replacement/removal,
 pre-inference bypass, mutation validation, and warning/options action tests.
-**39 Python tests and 27 extension/content/options/popup tests pass.** The brand
+**47 Python tests and 27 extension/content/options/popup tests pass.** The Windows
+startup checks include a real named-mutex duplicate guard, dependency waiting,
+windowless subprocess flags and loopback-only server settings. The windowless
+launcher also passed a real start with both GPU stages ready. The brand
 tests cover all 40 initial whitelist entries, one-time seeding, all label mappings,
 per-brand hostname/lookalike checks, and warning responses for all supported
 labels. The expanded Ollama prompt also returned the expected Microsoft, Google

@@ -50,15 +50,23 @@
         box-shadow:0 6px 24px #0006;font:15px/1.5 system-ui,sans-serif;text-align:left}
       strong{display:block;font-size:19px}p{margin:10px 0;overflow-wrap:anywhere}button{padding:6px 10px;margin:3px;
         border:1px solid #fff;border-radius:4px;background:#fff;color:#7f1d1d;cursor:pointer}
-      button:disabled{opacity:.65;cursor:wait}`;
+      button:disabled{opacity:.65;cursor:wait}
+      .reason{padding:10px 12px;background:#ffffff14;border-radius:5px}
+      .reason::before{content:"Why this warning?";display:block;font-weight:700;margin-bottom:4px}`;
     const panel = document.createElement("section");
     panel.setAttribute("role", "alert");
     const heading = document.createElement("strong");
-    heading.textContent = "NoPhish: possible phishing page";
+    const blacklisted = message.result.source === "user_list" && message.result.policy === "blacklist";
+    heading.textContent = blacklisted ? "NoPhish: blacklisted domain" : "NoPhish: possible phishing page";
     const reason = document.createElement("p");
-    reason.textContent = message.result.reason;
+    reason.setAttribute("class", "reason");
+    reason.textContent = blacklisted
+      ? "This domain is on your blacklist. You marked it as dangerous."
+      : message.result.reason;
     const advice = document.createElement("p");
-    advice.textContent = "Check the address before entering credentials. This prototype can make mistakes.";
+    advice.textContent = blacklisted
+      ? "If this decision is incorrect, remove it in the extension popup or whitelist the domain."
+      : "Check the address before entering credentials. This prototype can make mistakes.";
     const dismiss = document.createElement("button");
     dismiss.type = "button";
     dismiss.textContent = "Dismiss warning";
