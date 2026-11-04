@@ -36,6 +36,12 @@ warning, or **Confirm danger — blacklist** to remember it as dangerous. The
 **Why this warning?** section explains whether the alert comes from your blacklist
 or suspected impersonation of the named brand on an unapproved domain. Blacklist
 alerts use a distinct **NoPhish: blacklisted domain** heading. The
+alert also displays **Response time: … ms** for benchmarking. This uses the
+extension's monotonic clock immediately before the screenshot POST until the
+complete JSON result is received and decoded. It includes server processing and
+local request/response overhead, excluding screenshot capture, payload encoding,
+debounce and alert rendering. Alerts refreshed directly after a saved domain
+decision have no screenshot request and do not show a fabricated timing. The
 warning names the exact domain affected. Saving a whitelist decision clears
 the warning/badge immediately; blacklisting keeps the warning. A model verdict
 alone never adds an entry. Only an explicit user action saves a decision.
@@ -253,7 +259,7 @@ contract, strict labels, preload/keep-alive, missing models, timeouts, invalid
 responses, GPU-placement rejection and the unchanged OCR/domain pipeline.
 The domain-list update adds persistence, exact matching, replacement/removal,
 pre-inference bypass, mutation validation, and warning/options action tests.
-**47 Python tests and 27 extension/content/options/popup tests pass.** The Windows
+**47 Python tests and 29 extension/content/options/popup tests pass.** The Windows
 startup checks include a real named-mutex duplicate guard, dependency waiting,
 windowless subprocess flags and loopback-only server settings. The windowless
 launcher also passed a real start with both GPU stages ready. The brand

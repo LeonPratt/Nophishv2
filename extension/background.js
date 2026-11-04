@@ -86,15 +86,19 @@ async function inspect(tabId) {
       return;
     }
 
+    // Build the payload before starting the screenshot-request benchmark.
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: tab.url, screenshot }),
+      signal: AbortSignal.timeout(10_000),
+      redirect: "error",
+    };
     let response;
+    let requestStarted;
     try {
-      response = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: tab.url, screenshot }),
-        signal: AbortSignal.timeout(10_000),
-        redirect: "error",
-      });
+      requestStarted = performance.now();
+      response = await fetch(ENDPOINT, requestOptions);
     } catch {
       offlineUntil = Date.now() + 15_000;
       if (current()) await indicate(tabId, "OFF", "NoPhish: local server unavailable; open popup to retry");
@@ -102,6 +106,7 @@ async function inspect(tabId) {
     }
     if (!response.ok) throw new Error("Local server rejected request");
     const result = await response.json();
+    const requestElapsedMs = performance.now() - requestStarted;
     const knownBrand = (await brandsReady).has(result?.brand);
     const listed = result?.source === "user_list" && result.brand === null &&
       ((result.policy === "whitelist" && result.verdict === "safe") ||
@@ -116,7 +121,7 @@ async function inspect(tabId) {
     if (!current() || latest.url !== tab.url) return;
     const badge = { dangerous: "!", unknown: "?", safe: "", not_login: "" }[result.verdict];
     await indicate(tabId, badge, `NoPhish: ${result.reason}`, result.verdict === "dangerous" ? "#b91c1c" : "#666666");
-    await tell(tabId, state, { type: "analysis", url: tab.url, result });
+    await tell(tabId, state, { type: "analysis", url: tab.url, result, requestElapsedMs });
     console.info("NoPhish verdict:", result.verdict, "brand:", result.brand);
   } catch {
     if (current()) await indicate(tabId, "ERR", "NoPhish: capture, permission, or response error; open popup to retry");

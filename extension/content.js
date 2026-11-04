@@ -52,6 +52,7 @@
         border:1px solid #fff;border-radius:4px;background:#fff;color:#7f1d1d;cursor:pointer}
       button:disabled{opacity:.65;cursor:wait}
       .reason{padding:10px 12px;background:#ffffff14;border-radius:5px}
+      .timing{font-size:12px;opacity:.9;border-top:1px solid #ffffff40;padding-top:8px;margin-bottom:0}
       .reason::before{content:"Why this warning?";display:block;font-weight:700;margin-bottom:4px}`;
     const panel = document.createElement("section");
     panel.setAttribute("role", "alert");
@@ -102,6 +103,12 @@
     whitelist.addEventListener("click", (event) => decide("whitelist", event));
     blacklist.addEventListener("click", (event) => decide("blacklist", event));
     panel.append(domain, whitelist, blacklist, status);
+    if (Number.isFinite(message.requestElapsedMs) && message.requestElapsedMs >= 0) {
+      const timing = document.createElement("p");
+      timing.setAttribute("class", "timing");
+      timing.textContent = `Response time: ${message.requestElapsedMs.toFixed(1)} ms`;
+      panel.append(timing);
+    }
     root.append(style, panel);
     document.documentElement.append(notice);
   });
